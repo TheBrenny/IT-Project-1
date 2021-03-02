@@ -1,0 +1,12 @@
+{
+  "setup": {
+    "config": {
+      "DEPLOY_ENV": "heroku",
+      "NODE_ENV": "production",
+      "HOST": "0.0.0.0"
+    }
+  },
+  "run": {
+    "web": "npm start"
+  }
+}
