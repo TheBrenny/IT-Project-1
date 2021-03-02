@@ -4,7 +4,7 @@
 //                  so we'll need to create a driver changer for use on Heroku.)
 
 require("./util_and_polyfill"); // only needs to be called once for the app!
-require("./db/db"); // initial load of the DB.
+// require("./db/db"); // initial load of the DB.
 
 const config = require("./config");
 const serverInfo = config.serverInfo;
@@ -31,7 +31,7 @@ app.engine('sce', scetch.engine);
 app.set('view engine', 'sce');
 
 app.use("/assets", express.static(path.join(public, "assets")));
-app.use('/api', require('./app/api/routes'));
+// app.use('/api', require('./app/api/routes'));
 app.use(require('./app/public/routes'));
 app.use(require('./app/errorRouter'));
 app.use(require('./app/errorRouter').handler);

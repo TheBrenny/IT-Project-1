@@ -3,7 +3,7 @@ const sass = require('gulp-sass');
 const browserSync = require('browser-sync').create();
 const nodemon = require('gulp-nodemon');
 const fs = require('fs');
-const host = "sadass";
+const host = "itproj";
 const config = require('./config');
 
 gulp.task("sass", function () {
@@ -55,22 +55,6 @@ gulp.task("watch", gulp.series("sass", function (cb) {
     cb();
 }));
 
-gulp.task("prepareDev", async function (cb) {
-    process.env.NODE_ENV = "dev";
-    if (!fs.existsSync(config.dbTarget)) {
-        await gulp.task("cleanDev")();
-    }
-    if (cb) cb();
-});
-
-gulp.task("cleanDev", async function cleanDev(cb) {
-    process.env.NODE_ENV = "dev";
-    const db = require('./db/db');
-    await db.exec(db.sqlFromFile("clean"));
-    await db.exec(db.sqlFromFile("install"));
-    await db.close();
-    if (cb) cb();
-});
 
 gulp.task("build", gulp.series("sass"));
-gulp.task("dev", gulp.series("prepareDev", "nodemon", "browserSync", "watch"));
+gulp.task("dev", gulp.series("nodemon", "browserSync", "watch"));

@@ -1,0 +1,227 @@
+// https://coolors.co/1d8ac4-d69f40-bae617-cc3e1d-222222
+$blue: #1D8Ac4; // Background
+$green: #BAE617; // Green means go!
+$red: #CC3E1D; // Red is bad!
+$orange: #D69F40;
+
+$navActive: $orange;
+$navHover: scale-color($navActive, $lightness: -20%);
+$navInactive: scale-color($navActive, $lightness: -30%);
+$black: #222222; // Text color
+$notblack: #444444;
+$white: #EFEFEF; // White could be accent?
+$grey: #AAAAAA; // White could be accent?
+// $alphawhite: change-color(#EFEFEF, $alpha: 0.2); // White could be accent?
+
+@import "mixins";
+
+html {
+    background: $blue;
+    color: $black;
+}
+
+app {
+    display: flex;
+    flex-flow: column;
+    margin: 1rem 2.5rem;
+    gap: 1rem;
+
+    @include desktop {
+        max-width: calc(1024px - 2.5rem * 2);
+        margin: 1rem auto;
+    }
+}
+
+.hr {
+    border-bottom: 1.25px solid $black;
+    width: 90%;
+    align-self: center;
+}
+
+.felx-br {
+    flex-basis: 100%;
+    height: 0;
+}
+
+blockquote.error {
+    background: $grey;
+    padding: 1rem 1.5rem;
+    border-left: 0.5rem solid;
+    border-radius: 0.5rem;
+    border-image: linear-gradient(to bottom, $orange, $red) 1 100%;
+    color: $notblack;
+}
+
+.flex {
+    display: flex;
+}
+
+div.navbar {
+    margin-bottom: 0.5rem;
+    flex-flow: row;
+    justify-content: space-evenly;
+
+    &>.navbarItem {
+        flex-grow: 0.175;
+        text-align: center;
+        border-radius: 0 0 1em 1em;
+        background: $navInactive;
+        // background: change-color($orange, $alpha: 0.5);
+        line-height: 3em;
+        height: 3em;
+        font-size: 1rem;
+        cursor: pointer;
+
+        &.active {
+            background: $navActive;
+        }
+
+        &:not(.active):hover {
+            background: $navHover;
+        }
+    }
+
+    @include tablet {
+        &.open {
+            flex-flow: column;
+        }
+
+        &.closed>.navbarItem {
+            display: none;
+        }
+    }
+}
+
+div.student {
+    flex-flow: column;
+    text-align: center;
+    flex-shrink: 1;
+}
+
+.cardHolder {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-evenly;
+    align-items: flex-start;
+    align-content: flex-start;
+    gap: 1rem;
+}
+
+.card {
+    width: 200px;
+    padding: 10px;
+    background: $white;
+    border-radius: 0.7em;
+    box-shadow: 0 3px 7px 0 rgba(0, 0, 0, 0.26), 0 4px 14px 0 rgba(0, 0, 0, 0.22);
+    transition: transform 200ms ease;
+    margin: 1em 0;
+
+    .clickable>& {
+        cursor: pointer;
+
+        &:hover {
+            transform: scale(1.1);
+        }
+    }
+}
+
+.studentImage,
+img {
+    width: inherit;
+    height: inherit;
+}
+
+.actionButtons {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+
+    &>input {
+        flex-grow: 1;
+    }
+
+    &>.btn {
+        width: 150px;
+    }
+}
+
+input,
+select {
+    border-radius: 0.6rem;
+    padding: 0.5em !important;
+    font-size: 1.3rem;
+    border: none;
+    display: block;
+    box-sizing: border-box;
+    transition: border 0.2s;
+    border-bottom: 0.2em solid rgba($green, 0);
+
+    &[disabled] {
+        color: $notblack;
+        font-weight: 100;
+        font-style: italic;
+
+        &:hover,
+        &:focus {
+            border-bottom: 0.2em solid $red !important;
+        }
+    }
+
+    &:hover,
+    &:focus {
+        border-bottom: 0.2em solid $green;
+        outline: none;
+    }
+}
+
+.btn {
+    background: $green;
+    padding: 1rem;
+    border-radius: 0.6rem;
+    transition: 0.2s ease-out;
+    user-select: none;
+    text-align: center;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &:not([disabled]) {
+        cursor: pointer;
+    }
+
+    &:not([disabled]):hover {
+        filter: brightness(85%);
+    }
+
+    &:not([disabled]):active {
+        filter: brightness(75%);
+    }
+
+    &.red {
+        background: $red;
+    }
+}
+
+.studentBlock {
+    gap: 1rem;
+    align-items: center;
+}
+
+.studentInfo {
+    flex-flow: row wrap;
+    flex-grow: 1;
+    gap: 1em;
+
+    &>label {
+        flex-basis: calc(16% - 1em);
+        text-align: right;
+        align-self: center;
+    }
+
+    &>input,
+    &>select {
+        flex-basis: 80%;
+        flex-grow: 1;
+    }
+}
