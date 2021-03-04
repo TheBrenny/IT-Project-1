@@ -1,3 +1,7 @@
+# Ignore Individual Review Folder
+individual_review/*
+!individual_review/.empty
+
 # Logs
 logs
 *.log
