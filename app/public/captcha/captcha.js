@@ -1,5 +1,5 @@
-function receiveData(req,res,next) {
-    // this function will receive the data, do computations, and will call next if the user is allowed to continue.
+function receiveData(req,res) {
+    // this function will receive the data, do computations, and return JSON containing a yes or no as to the success or failure of the captcha
     // Otherwise, the user will be blocked.
 }
 
