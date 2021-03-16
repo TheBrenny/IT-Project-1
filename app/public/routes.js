@@ -32,13 +32,4 @@ router.get(['/', '/home'], (req, res) => {
 });
 
 
-// ====== EXTRA ======
-
-if (!!process.env.DEMO_MODE) {
-    router.get('/demo', async (req, res) => {
-        await fetchAPI(req, '/demo');
-        res.redirect(303, '/');
-    });
-}
-
 module.exports = router;
