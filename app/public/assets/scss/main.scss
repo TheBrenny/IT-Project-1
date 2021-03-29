@@ -92,64 +92,11 @@ div.navbar {
     }
 }
 
-div.student {
-    flex-flow: column;
-    text-align: center;
-    flex-shrink: 1;
-}
-
-.cardHolder {
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: space-evenly;
-    align-items: flex-start;
-    align-content: flex-start;
-    gap: 1rem;
-}
-
-.card {
-    width: 200px;
-    padding: 10px;
-    background: $white;
-    border-radius: 0.7em;
-    box-shadow: 0 3px 7px 0 rgba(0, 0, 0, 0.26), 0 4px 14px 0 rgba(0, 0, 0, 0.22);
-    transition: transform 200ms ease;
-    margin: 1em 0;
-
-    .clickable>& {
-        cursor: pointer;
-
-        &:hover {
-            transform: scale(1.1);
-        }
-    }
-}
-
-.studentImage,
-img {
-    width: inherit;
-    height: inherit;
-}
-
-.actionButtons {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-
-    &>input {
-        flex-grow: 1;
-    }
-
-    &>.btn {
-        width: 150px;
-    }
-}
-
 input,
-select {
+select,
+textarea {
     border-radius: 0.6rem;
     padding: 0.5em !important;
-    font-size: 1.3rem;
     border: none;
     display: block;
     box-sizing: border-box;
@@ -174,7 +121,8 @@ select {
     }
 }
 
-.btn {
+.btn,
+input[type="submit"] {
     background: $green;
     padding: 1rem;
     border-radius: 0.6rem;
@@ -203,25 +151,8 @@ select {
     }
 }
 
-.studentBlock {
-    gap: 1rem;
-    align-items: center;
-}
-
-.studentInfo {
-    flex-flow: row wrap;
-    flex-grow: 1;
+.contactForm {
+    flex-flow: column;
+    width: 100%;
     gap: 1em;
-
-    &>label {
-        flex-basis: calc(16% - 1em);
-        text-align: right;
-        align-self: center;
-    }
-
-    &>input,
-    &>select {
-        flex-basis: 80%;
-        flex-grow: 1;
-    }
 }

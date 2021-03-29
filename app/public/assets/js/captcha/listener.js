@@ -25,7 +25,7 @@ function captureData() {
     dataPoints.mouse.push(Object.assign({}, mousePosition));
     dataPoints.mouse = dataPoints.mouse.splice(-dataPointCount);
 
-    // console.log(dataPoints.mouse[0].x + "," + dataPoints.mouse[0].y + " | " + dataPoints.mouse[dataPoints.mouse.length - 1].x + "," + dataPoints.mouse[dataPoints.mouse.length - 1].y);
+    console.log(dataPoints.mouse[0].x + "," + dataPoints.mouse[0].y + " | " + dataPoints.mouse[dataPoints.mouse.length - 1].x + "," + dataPoints.mouse[dataPoints.mouse.length - 1].y);
 }
 
 function submitData() {

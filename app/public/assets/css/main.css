@@ -55,72 +55,38 @@ div.navbar {
     div.navbar.closed > .navbarItem {
       display: none; } }
 
-div.student {
-  flex-flow: column;
-  text-align: center;
-  flex-shrink: 1; }
-
-.cardHolder {
-  display: flex;
-  flex-flow: row wrap;
-  justify-content: space-evenly;
-  align-items: flex-start;
-  align-content: flex-start;
-  gap: 1rem; }
-
-.card {
-  width: 200px;
-  padding: 10px;
-  background: #EFEFEF;
-  border-radius: 0.7em;
-  box-shadow: 0 3px 7px 0 rgba(0, 0, 0, 0.26), 0 4px 14px 0 rgba(0, 0, 0, 0.22);
-  transition: transform 200ms ease;
-  margin: 1em 0; }
-  .clickable > .card {
-    cursor: pointer; }
-    .clickable > .card:hover {
-      transform: scale(1.1); }
-
-.studentImage,
-img {
-  width: inherit;
-  height: inherit; }
-
-.actionButtons {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem; }
-  .actionButtons > input {
-    flex-grow: 1; }
-  .actionButtons > .btn {
-    width: 150px; }
-
 input,
-select {
+select,
+textarea {
   border-radius: 0.6rem;
   padding: 0.5em !important;
-  font-size: 1.3rem;
   border: none;
   display: block;
   box-sizing: border-box;
   transition: border 0.2s;
   border-bottom: 0.2em solid rgba(186, 230, 23, 0); }
   input[disabled],
-  select[disabled] {
+  select[disabled],
+  textarea[disabled] {
     color: #444444;
     font-weight: 100;
     font-style: italic; }
     input[disabled]:hover, input[disabled]:focus,
     select[disabled]:hover,
-    select[disabled]:focus {
+    select[disabled]:focus,
+    textarea[disabled]:hover,
+    textarea[disabled]:focus {
       border-bottom: 0.2em solid #CC3E1D !important; }
   input:hover, input:focus,
   select:hover,
-  select:focus {
+  select:focus,
+  textarea:hover,
+  textarea:focus {
     border-bottom: 0.2em solid #BAE617;
     outline: none; }
 
-.btn {
+.btn,
+input[type="submit"] {
   background: #BAE617;
   padding: 1rem;
   border-radius: 0.6rem;
@@ -130,28 +96,20 @@ select {
   display: flex;
   justify-content: center;
   align-items: center; }
-  .btn:not([disabled]) {
+  .btn:not([disabled]),
+  input[type="submit"]:not([disabled]) {
     cursor: pointer; }
-  .btn:not([disabled]):hover {
+  .btn:not([disabled]):hover,
+  input[type="submit"]:not([disabled]):hover {
     filter: brightness(85%); }
-  .btn:not([disabled]):active {
+  .btn:not([disabled]):active,
+  input[type="submit"]:not([disabled]):active {
     filter: brightness(75%); }
-  .btn.red {
+  .btn.red,
+  input[type="submit"].red {
     background: #CC3E1D; }
 
-.studentBlock {
-  gap: 1rem;
-  align-items: center; }
-
-.studentInfo {
-  flex-flow: row wrap;
-  flex-grow: 1;
+.contactForm {
+  flex-flow: column;
+  width: 100%;
   gap: 1em; }
-  .studentInfo > label {
-    flex-basis: calc(16% - 1em);
-    text-align: right;
-    align-self: center; }
-  .studentInfo > input,
-  .studentInfo > select {
-    flex-basis: 80%;
-    flex-grow: 1; }
