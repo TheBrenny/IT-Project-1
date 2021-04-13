@@ -4,6 +4,7 @@
   "description": "The codebase for the Silent Captcha project for IT Project 1.",
   "main": "server.js",
   "scripts": {
+    "dev": "node ./node_modules/gulp/bin/gulp.js -LLLL dev",
     "test": "echo \"Error: no test specified\""
   },
   "repository": {
