@@ -3,85 +3,145 @@
 
 
 // ===== Config
-const submitURL = "";
-const dataPointCount = 200;
-const captureMillis = 50;
-const submitMillis = (dataPointCount * captureMillis) * 1.2; // multiply by 1.2 to save from overlaps
+const submitURL = document.location.origin + "/captcha";
+const mousePointCount = 200;
+const submitMillis = 10000; // 10 seconds
+const fetchMethod = "PUT";
 let verbose = false;
 
 
 // ===== Global Vars (scoped to script)
-const mousePosition = { // stores the current mouse position
-    x: 0,
-    y: 0
-};
 const keysDown = {}; // stores the current keys that are down.
 const dataPoints = { // stores the data to push to the server
-    mouse: [], // stores the {x, y} coordinates of the mouse
-    keys: [], // stores the {key, time} object of key presses
-    focus: [], // stores the { } object of key presses
+    mouse: [], // stores the mouse movements
+    mousePress: [], // stores the mouse presses
+    keys: [], // stores the key presses
+    focus: [], // stores the focus events
 };
-const startTime = new Date(); // the start time of this app
+const keyCache = {}; // store a cache of the keys presses so we can modify their attributes
+const mouseCache = {}; // store a cache of the mouse presses so we can modify their attributes
+const focusCache = {}; // store a cache of the focus events so we can modify their attributes
 let uniqueNumber = 0; // the number we use to generate unique names 
-let captureInterval = null; // stores the response from setInterval so we have the chance to cancel the interval
 let submitInterval = null; // stores the response from setInterval so we have the chance to cancel the interval
 
 
-// ===== Global Vars (scoped to script)
+// ===== Capturing methods!
 function mouseMoveHandler(e) {
-    mousePosition.x = e.clientX;
-    mousePosition.y = e.clientY;
+    let mouseMove = {
+        x: e.clientX,
+        y: e.clientY,
+        time: Math.floor(e.timeStamp),
+    };
+
+    // push to the submission object, but keep the size of the array slim
+    dataPoints.mouse.push(mouseMove);
+    dataPoints.mouse = dataPoints.mouse.splice(-mousePointCount);
+}
+
+function mouseDownUpHandler(e) {
+    if (e.type === "mousedown") {
+        //cache the mouse press
+        mouseCache[e.button] = {
+            button: e.button,
+            timeDown: Math.floor(e.timeStamp),
+            timeUp: null,
+            meta: {
+                shift: e.shiftKey,
+                ctrl: e.ctrlKey,
+                alt: e.altKey,
+                target: getUidOfTarget(e.target),
+            }
+        };
+    } else { // e.type === "mouseup"
+        // update the cache
+        mouseCache[e.button].timeUp = Math.floor(e.timeStamp);
+        dataPoints.mousePress.push(mouseCache[e.button]);
+
+        //de-reference the cache
+        mouseCache[e.button] = null;
+    }
 }
 
 function keyOnOffHandler(e) {
     if (e.repeat) return; // ignore key held
 
-    dataPoints.keys.push({
-        key: e.key,
-        type: e.type,
-        time: (new Date() - startTime),
-        meta: {
-            shift: e.shiftKey,
-            ctrl: e.ctrlKey,
-            alt: e.altKey,
-            composing: e.isComposing,
-            target: e.currentTarget
-        }
-    });
+    if (e.type === "keydown") {
+        // cache the keypress
+        keyCache[e.key] = {
+            key: e.key,
+            timeDown: Math.floor(e.timeStamp),
+            timeUp: null,
+            meta: {
+                shift: e.shiftKey,
+                ctrl: e.ctrlKey,
+                alt: e.altKey,
+                target: getUidOfTarget(e.target),
+            }
+        };
+    } else { // e.type === "keyup"
+        // update the keypress and prep for submission
+        keyCache[e.key].timeUp = Math.floor(e.timeStamp);
+        dataPoints.keys.push(keyCache[e.key]);
 
-    if (verbose) console.log(e);
+        // de-reference from cache
+        keyCache[e.key] = null;
+    }
 }
 
 function focusHandler(e) {
-    dataPoints.focus.push({
-        id: e.target.id || e.target.name || (e.target.id = getNextID(e.target)),
-        type: e.type,
-        time: (new Date() - startTime)
-    });
-    console.log(e);
+    let uid = getUidOfTarget(e.target);
+
+    if (e.type === "focus") {
+        focusCache[uid] = {
+            id: uid,
+            type: e.type,
+            focusTime: Math.floor(e.timeStamp),
+            blurTime: null
+        };
+    } else { // e.type === "blur"
+        // prep for submission
+        focusCache[uid].blurTime = Math.floor(e.timeStamp);
+        dataPoints.focus.push(focusCache[uid]);
+
+        // de-reference from cache
+        focusCache[uid] = null;
+    }
+
+    dataPoints.focus.push();
 }
 
-function captureData() {
-    dataPoints.mouse.push(Object.assign({}, mousePosition));
-    dataPoints.mouse = dataPoints.mouse.splice(-dataPointCount);
+function submitData() { // send the data to the server
+    let out = JSON.stringify(dataPoints);
+    dataPoints.mouse = [];
+    dataPoints.mousePress = [];
+    dataPoints.keys = [];
+    dataPoints.focus = [];
 
-    if (verbose) console.log(dataPoints.mouse[0].x + "," + dataPoints.mouse[0].y + " | " + dataPoints.mouse[dataPoints.mouse.length - 1].x + "," + dataPoints.mouse[dataPoints.mouse.length - 1].y);
+    // fetch(submitURL, {
+    //     method: fetchMethod,
+    //     body: out
+    // });
+    console.log(`fetch("${submitURL}", {\n\tmethod: "${fetchMethod}",\n\tbody: ${out}\n})`);
 }
 
-function submitData() {
-    // this will be used to send the captured data to the server for processing and determination
-    console.log(dataPoints);
+
+// Some util methods
+function getUidOfTarget(target) {
+    return target.id || target.name || (target.id = getNextID(target));
 }
 
 function getNextID(target) {
     return target.localName + "_" + uniqueNumber++;
 }
 
+
+// set up handlers
 document.onmousemove = mouseMoveHandler;
+document.onmousedown = mouseDownUpHandler;
+document.onmouseup = mouseDownUpHandler;
 document.onkeydown = keyOnOffHandler;
 document.onkeyup = keyOnOffHandler;
 document.querySelectorAll(`input:not([type="submit"]), textarea`).forEach(el => ((el.onfocus = focusHandler), (el.onblur = focusHandler)));
 
-// Start the capturer and submitter on intervals
-captureInterval = setInterval(captureData, captureMillis);
+// Start the submitter intervals
 submitInterval = setInterval(submitData, submitMillis);
