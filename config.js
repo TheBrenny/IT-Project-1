@@ -4,14 +4,16 @@ module.exports = {
             write: console.log
         } : process.stdout
     },
-    helmet: {}
+    helmet: {},
+    serverInfo: {
+        host: process.env.HOST || "localhost",
+        port: process.env.PORT || 80
+    },
+    session: {
+        secret: process.env.secret || "thisIsSecretHaHa"
+    }
 };
 
 module.exports.helmet = !process.env.GULPING ? {} : {
     contentSecurityPolicy: false
-};
-
-module.exports.serverInfo = {
-    host: process.env.HOST || "localhost",
-    port: process.env.PORT || 80
 };
