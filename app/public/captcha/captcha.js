@@ -4,49 +4,101 @@ const sessions = require("client-sessions");
 //const calc = require("./calculator");
 const calc = {
     generateRSquared: (inputs) => Math.random(),
-    deriveDataPoints: (obj) => {
+    deriveDataPoints: (obj, maxEventGap) => {
         // returns an array of arrays identifying the ***different partitions*** of user interaction
-        // TODO: Make it so there actually are different partitions -- maybe by splitting into sub arrays based on timings from different events?
 
-        let ret = [];
+        let allEvents = [];
+
+        // Take the values that we care about from the events received
         let arr = [];
         for (let key of Object.keys(obj)) {
             arr = obj[key];
             switch (key) {
                 case "mouse":
-                    ret.push(arr.map(e => Object.assign({
+                    // Mouse Coordinates
+                    allEvents = allEvents.concat(arr.map(e => Object.assign({
                         x: e.x,
-                        y: e.y
+                        y: e.y,
+                        time: e.time,
+                        type: "mouse"
                     })));
                     break;
 
                 case "mousePress":
-                    ret.push(arr.map((e, i) => Object.assign({
+                    // Mouse Press Coordinates
+                    allEvents = allEvents.concat(arr.map((e, i) => Object.assign({
                         x: i,
-                        y: e.timeUp - e.timeDown
+                        y: e.timeUp - e.timeDown,
+                        time: e.timeDown,
+                        type: "mousePress"
                     })));
                     break;
 
                 case "keys":
-                    ret.push(arr.map((e, i) => Object.assign({
+                    // Key Press length
+                    allEvents = allEvents.concat(arr.map((e, i) => Object.assign({
                         x: i,
-                        y: e.timeUp - e.timeDown
+                        y: e.timeUp - e.timeDown,
+                        time: e.timeDown,
+                        type: "keyPress"
                     })));
-                    ret.push(arr.slice(1).map((_, i) => Object.assign({ // jshint ignore:line
+                    // Key Press gap timing
+                    allEvents = allEvents.concat(arr.slice(1).map((e, i) => Object.assign({ // jshint ignore:line
                         x: i,
-                        y: arr[i+1].timeDown - arr[i].timeUp // this gives us the timing gap between two key presses
+                        y: arr[i + 1].timeDown - arr[i].timeUp, // this gives us the timing gap between two key presses
+                        time: e.timeDown,
+                        type: "skip"
                     })));
                     break;
 
                 case "focus":
-                    ret.push(arr.map((e, i) => Object.assign({
+                    // Focus Timing
+                    allEvents = allEvents.concat(arr.map((e, i) => Object.assign({
                         x: i,
-                        y: e.blurTime - e.focusTime
+                        y: e.blurTime - e.focusTime,
+                        time: e.focusTime,
+                        type: "focus"
                     })));
+                    // Blur Timing -- Do we actually need this?
+                    // allEvents.concat(arr.map((e, i) => Object.assign({
+                    //     x: i,
+                    //     y: e.blurTime - e.focusTime,
+                    //     time: e.blurTime,
+                    //     type: "focus"
+                    // })));
                     break;
             }
         }
 
+        // Sort the events based on time
+        allEvents.sort((a, b) => a.time - b.time);
+
+        // Partition the events based on type and gaps in time
+        let ret = [];
+        let sub = [];
+        let currentTime = 0;
+        let currentType = "skip";
+        let currentEvent = {};
+        for (let i = 0; i < allEvents.length; i++) {
+            currentEvent = allEvents[i];
+            if (currentEvent.type === "skip") continue; // skip the skipables
+
+            if (currentEvent.type !== currentType) {
+                if (sub.length > 0) ret.push(sub);
+                sub = [currentEvent];
+            } else if (currentTime - currentEvent.time >= maxEventGap) {
+                if (sub.length > 0) ret.push(sub);
+                sub = [currentEvent];
+            } else {
+                sub.push(currentEvent);
+            }
+
+            currentType = currentEvent.type;
+            currentTime = currentEvent.time;
+        }
+        if (sub.length > 0) ret.push(sub); // add the last sub array
+
+        // Return the ret array which has partitioned events!
         return ret;
     }
 };
@@ -60,14 +112,14 @@ let config = {
     threshold: 0.5,
     route: "/captcha",
     debug: false,
+    maxEventGap: 1500,
 };
 
 function handleData(req, res) {
     session = getSession(req);
     if (!session.sessionID) session.sessionID = generateRandomID();
 
-    // TODO: separate the data into likely chunks based on time?
-    let dataPoints = calc.deriveDataPoints(req.body);
+    let dataPoints = calc.deriveDataPoints(req.body, config.maxEventGap);
 
     let score = 0;
     let maxScore = 0;
