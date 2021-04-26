@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const captcha = require("./captcha");
+const captcha = require("./captcha/captcha");
 
 function getPageData(req, _) {
     let part = req.url.substring(1);
