@@ -1,17 +1,6 @@
-
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const nodeFetch = require("node-fetch");
-
-function fetchAPI(req, path) {
-    let target = req.protocol + "://" + req.hostname + "/api" + path;
-    return nodeFetch(target, {
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        }
-    }).then(r => r.json());
-}
+const captcha = require("./captcha/captcha");
 
 function getPageData(req, _) {
     let part = req.url.substring(1);
@@ -23,13 +12,36 @@ function getPageData(req, _) {
     };
 }
 
-// ====== HOME ======
+// ====== SET CAPTCHA URL HERE ======
+router.use(captcha({
+    route: "/captcha",
+    debug: true,
+}));
 
-router.get(['/', '/home'], (req, res) => {
-    res.render('home', {
+// ====== HOME ======
+router.get(["/", "/home"], (req, res) => {
+    res.render("home", {
         ...getPageData(req, res),
     });
 });
 
+// ====== RECEIVE FORM ======
+router.post("/contact", (req, res) => {
+    let name = req.body.name;
+    let email = req.body.email;
+    let message = req.body.message;
+
+    let legit = captcha.isLegitimate(req);
+
+    if (legit) {
+        // push to success
+    } else {
+        // throw error to client side
+    }
+
+    res.json({
+        isBot: !legit
+    }).end();
+});
 
 module.exports = router;

@@ -1,6 +1,6 @@
 [[i= partials/header ]]
 
-  <form class="flex contactForm" action="/contact" method="post">
+  <form class="flex contactForm" action="/contact" method="post" enctype="application/json">
     <input type="text" name="name" placeholder="Name">
     <input type="email" name="email" placeholder="Email">
     <textarea name="message" rows="6" placeholder="Message"></textarea>
