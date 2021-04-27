@@ -6,7 +6,7 @@
 const submitURL = document.location.origin + "/captcha";
 const mousePointCount = 200;
 const submitMillis = 10000; // 10 seconds
-const fetchMethod = "PUT";
+const fetchMethod = "POST";
 let verbose = false;
 
 
@@ -118,6 +118,10 @@ function submitData() { // send the data to the server
     dataPoints.focus = [];
 
     fetch(submitURL, {
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
         method: fetchMethod,
         body: out
     });

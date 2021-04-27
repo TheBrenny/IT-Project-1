@@ -13,6 +13,7 @@ let config = {
     route: "/captcha",
     debug: false,
     maxEventGap: 1500,
+    method: "post"
 };
 
 function handleData(req, res) {
@@ -64,7 +65,8 @@ module.exports = function (opts) {
     Object.assign(config, opts || {});
 
     router.use(sessions(config));
-    router.post(config.route, handleData);
+    router.use(express.json());
+    router[config.method.toLowerCase()](config.route, handleData);
 
     this.router = router;
     this.isLegitimate = isLegitimate;
