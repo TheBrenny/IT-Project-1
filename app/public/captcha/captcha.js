@@ -63,6 +63,7 @@ function generateRandomID() {
 // Inside a function so we can pass options
 module.exports = function (opts) {
     Object.assign(config, opts || {});
+    // if (!!opts.debug) config.secret = ""; // we can't unset thje secret.
 
     router.use(sessions(config));
     router.use(express.json());
@@ -70,5 +71,5 @@ module.exports = function (opts) {
 
     this.router = router;
     this.isLegitimate = isLegitimate;
-    return router;
+    return this;
 };

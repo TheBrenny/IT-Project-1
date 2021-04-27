@@ -1,6 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const captcha = require("./captcha/captcha");
+const appConfig = require("./../../config");
+const captcha = require("./captcha/captcha")({
+    route: "/captcha",
+    debug: appConfig.debug,
+    secret: appConfig.session.secret
+});
 
 function getPageData(req, _) {
     let part = req.url.substring(1);
@@ -13,10 +18,7 @@ function getPageData(req, _) {
 }
 
 // ====== SET CAPTCHA URL HERE ======
-router.use(captcha({
-    route: "/captcha",
-    debug: true,
-}));
+router.use(captcha.router);
 
 // ====== HOME ======
 router.get(["/", "/home"], (req, res) => {
@@ -39,9 +41,13 @@ router.post("/contact", (req, res) => {
         // throw error to client side
     }
 
-    res.json({
-        isBot: !legit
-    }).end();
+    if(appConfig.debug) {
+        res.json({
+            isBot: !legit
+        }).end();
+    } else {
+        res.redirect("/");
+    }
 });
 
 module.exports = router;
