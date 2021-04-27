@@ -31,6 +31,12 @@ gulp.task("nodemon", function (cb) {
     return nodemon({
         script: 'server.js',
         delay: 10,
+        ignore: [
+            "app/public/assets/",
+            "app/public/views/",
+            "artefacts/",
+            "individual_review/",
+        ],
         env: {
             "NODE_ENV": 'dev',
             "GULPING": true,

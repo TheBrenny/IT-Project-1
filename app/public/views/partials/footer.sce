@@ -1,5 +1,5 @@
 <script src="/assets/js/navbar.js"></script>
-<!-- Try and sticky bottom a copyright footer. -->
+<script src="/assets/js/captcha/listener.js"></script>
 </app>
 </body>
 
