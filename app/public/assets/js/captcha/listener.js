@@ -117,11 +117,11 @@ function submitData() { // send the data to the server
     dataPoints.keys = [];
     dataPoints.focus = [];
 
-    // fetch(submitURL, {
-    //     method: fetchMethod,
-    //     body: out
-    // });
-    console.log(`fetch("${submitURL}", {\n\tmethod: "${fetchMethod}",\n\tbody: ${out}\n})`);
+    fetch(submitURL, {
+        method: fetchMethod,
+        body: out
+    });
+    // console.log(`fetch("${submitURL}", {\n\tmethod: "${fetchMethod}",\n\tbody: ${out}\n})`);
 }
 
 
