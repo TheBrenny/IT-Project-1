@@ -11,7 +11,8 @@ module.exports = {
     },
     session: {
         secret: process.env.secret || "thisIsSecretHaHa"
-    }
+    },
+    debug: !!process.env.debug
 };
 
 module.exports.helmet = !process.env.GULPING ? {} : {

@@ -41,7 +41,7 @@ gulp.task("nodemon", function (cb) {
             "NODE_ENV": 'dev',
             "GULPING": true,
             "IS_VSCODE": true,
-            "DEMO_MODE": true,
+            "DEBUG": true,
             "HOST": host,
             "PORT": 80
         },
