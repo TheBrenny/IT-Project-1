@@ -35,12 +35,10 @@ function handleData(req, res) {
     session.score = (session.score || 0) + score;
     session.maxScore = (session.maxScore || 0) + maxScore;
 
-    if (config.debug) console.log(session.sessionID + ": " + session.score.toFixed(2) + "/" + session.maxScore.toFixed(2) + " = " + (session.score / session.maxScore).toFixed(2));
-    res.json({
-        score: session.score,
-        maxScore: session.maxScore,
-        percent: session.score / session.maxScore
-    });
+    if (config.debug) {
+        console.log(session.sessionID + ": " + session.score.toFixed(2) + "/" + session.maxScore.toFixed(2) + " = " + (session.score / session.maxScore).toFixed(2));
+        res.json(getScoreObject());
+    }
 }
 
 function getSession(req) {
@@ -60,6 +58,15 @@ function generateRandomID() {
     return [...Array(config.keyLength).keys()].map(() => Math.floor(Math.random() * 36).toString(36)).join("");
 }
 
+function getScoreObject() {
+    return {
+        score: session.score,
+        maxScore: session.maxScore,
+        percent: session.score / session.maxScore
+    };
+}
+
+
 // Inside a function so we can pass options
 module.exports = function (opts) {
     Object.assign(config, opts || {});
@@ -71,5 +78,6 @@ module.exports = function (opts) {
 
     this.router = router;
     this.isLegitimate = isLegitimate;
+    this.getScoreObject = getScoreObject;
     return this;
 };
