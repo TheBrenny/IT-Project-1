@@ -43,7 +43,8 @@ router.post("/contact", (req, res) => {
 
     if(appConfig.debug) {
         res.json({
-            isBot: !legit
+            isBot: !legit,
+            ...captcha.getScoreObject()
         }).end();
     } else {
         res.redirect("/");
