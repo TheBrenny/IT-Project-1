@@ -38,6 +38,8 @@ function handleData(req, res) {
     if (config.debug) {
         console.log(session.sessionID + ": " + session.score.toFixed(2) + "/" + session.maxScore.toFixed(2) + " = " + (session.score / session.maxScore).toFixed(2));
         res.json(getScoreObject(req));
+    } else{
+        res.end();
     }
 }
 
