@@ -2,8 +2,6 @@ const gulp = require('gulp');
 const sass = require('gulp-sass');
 const browserSync = require('browser-sync').create();
 const nodemon = require('gulp-nodemon');
-const fs = require('fs');
-const host = "itproj";
 const config = require('./config');
 
 gulp.task("sass", function () {
@@ -17,11 +15,11 @@ gulp.task("sass", function () {
 
 gulp.task("browserSync", function (cb) {
     return browserSync.init({
-        proxy: `http://${host}/`,
+        proxy: `http://${config.serverInfo.host}/`,
         files: ["app/public/assets/**/*.*", "app/public/views/**/*.*"],
         ignore: ["**/*.scss"],
         open: false,
-        port: 81
+        port: config.serverInfo.port + 1
     }, cb);
 });
 
@@ -38,12 +36,7 @@ gulp.task("nodemon", function (cb) {
             "individual_review/",
         ],
         env: {
-            "NODE_ENV": 'dev',
             "GULPING": true,
-            "IS_VSCODE": true,
-            "DEMO_MODE": true,
-            "HOST": host,
-            "PORT": 80
         },
     }).on('start', function () {
         // to avoid nodemon being started multiple times
