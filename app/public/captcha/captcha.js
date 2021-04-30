@@ -37,7 +37,7 @@ function handleData(req, res) {
 
     if (config.debug) {
         console.log(session.sessionID + ": " + session.score.toFixed(2) + "/" + session.maxScore.toFixed(2) + " = " + (session.score / session.maxScore).toFixed(2));
-        res.json(getScoreObject());
+        res.json(getScoreObject(req));
     }
 }
 
@@ -58,7 +58,9 @@ function generateRandomID() {
     return [...Array(config.keyLength).keys()].map(() => Math.floor(Math.random() * 36).toString(36)).join("");
 }
 
-function getScoreObject() {
+function getScoreObject(req) {
+    let session = getSession(req);
+
     return {
         score: session.score,
         maxScore: session.maxScore,

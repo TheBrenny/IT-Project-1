@@ -17,7 +17,6 @@ function getPageData(req, _) {
     };
 }
 
-// ====== SET CAPTCHA URL HERE ======
 router.use(captcha.router);
 
 // ====== HOME ======
@@ -44,7 +43,7 @@ router.post("/contact", (req, res) => {
     if(appConfig.debug) {
         res.json({
             isBot: !legit,
-            ...captcha.getScoreObject()
+            ...captcha.getScoreObject(req)
         }).end();
     } else {
         res.redirect("/");
