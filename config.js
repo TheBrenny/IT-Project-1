@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 module.exports = {
     morgan: {
         stream: process.env.IS_VSCODE ? {
