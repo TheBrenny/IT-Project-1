@@ -12,8 +12,9 @@ module.exports = {
         port: process.env.PORT || 80
     },
     session: {
-        secret: process.env.secret || "thisIsSecretHaHa"
-    }
+        secret: process.env.SECRET || "thisIsSecretHaHa"
+    },
+    debug: !!process.env.DEBUG
 };
 
 module.exports.helmet = !process.env.GULPING ? {} : {
