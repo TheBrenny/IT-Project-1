@@ -123,20 +123,19 @@ function submitData() { // send the data to the server
     //     type: "application/json"
     // }));
 
-    let req = new XMLHttpRequest();
-    req.open("POST", submitURL, false);
-    req.setRequestHeader("Content-Type", "application/json");
-    req.send(out);
+    // let req = new XMLHttpRequest();
+    // req.open("POST", submitURL, false);
+    // req.setRequestHeader("Content-Type", "application/json");
+    // req.send(out);
 
-    // fetch(submitURL, {
-    //     headers: {
-    //         'Accept': 'application/json',
-    //         'Content-Type': 'application/json'
-    //     },
-    //     method: fetchMethod,
-    //     body: out
-    // });
-    // console.log(`fetch("${submitURL}", {\n\tmethod: "${fetchMethod}",\n\tbody: ${out}\n})`);
+    return fetch(submitURL, {
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        method: fetchMethod,
+        body: out
+    });
 }
 
 
