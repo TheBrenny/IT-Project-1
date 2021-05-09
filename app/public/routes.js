@@ -7,6 +7,16 @@ const captcha = require("./captcha/captcha")({
     secret: appConfig.session.secret
 });
 
+// In case we can't acually require the item - this souldn't be
+// an issue though if we package up the required files for production.
+const saveData = (() => {
+    try {
+        return require("../../test/save/saveData").saveData;
+    } catch (e) {
+        return null;
+    }
+})();
+
 function getPageData(req, _) {
     let part = req.url.substring(1);
     let nextSlash = part.indexOf("/");
@@ -40,10 +50,14 @@ router.post("/contact", (req, res) => {
         // throw error to client side
     }
 
-    if(appConfig.debug) {
+    let scoreObject = captcha.getScoreObject(req);
+    if (appConfig.session.save.doSave && !!saveData) saveData(Object.assign(scoreObject, {
+        isBot: email === "bot@botmail.bot" // TODO: MAKE SURE THIS IS THE RIGHT BOTMAIL ADDRESS TO LISTEN FOR!
+    }));
+    if (appConfig.debug) {
         res.json({
             isBot: !legit,
-            ...captcha.getScoreObject(req)
+            ...scoreObject
         }).end();
     } else {
         res.redirect("/");
