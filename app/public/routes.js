@@ -60,6 +60,7 @@ router.post("/contact", (req, res) => {
             ...scoreObject
         }).end();
     } else {
+        if(appConfig.testing) captcha.clearScore(req, res);
         res.redirect("/");
     }
 });

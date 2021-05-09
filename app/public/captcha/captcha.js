@@ -38,7 +38,7 @@ function handleData(req, res) {
     if (config.debug) {
         console.log(session.sessionID + ": " + session.score.toFixed(2) + "/" + session.maxScore.toFixed(2) + " = " + (session.score / session.maxScore).toFixed(2));
         res.json(getScoreObject(req));
-    } else{
+    } else {
         res.end();
     }
 }
@@ -72,6 +72,9 @@ function getScoreObject(req) {
     };
 }
 
+function clearScore(req, res) {
+    getSession(req).destroy();
+}
 
 // Inside a function so we can pass options
 module.exports = function (opts) {
@@ -85,5 +88,6 @@ module.exports = function (opts) {
     this.router = router;
     this.isLegitimate = isLegitimate;
     this.getScoreObject = getScoreObject;
+    this.clearScore = clearScore;
     return this;
 };
