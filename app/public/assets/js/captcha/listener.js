@@ -121,9 +121,9 @@ async function submitData() { // send the data to the server
     dataPoints.keys = [];
     dataPoints.focus = [];
 
-    // navigator.sendBeacon(submitURL, new Blob([out], {
-    //     type: "application/json"
-    // }));
+    navigator.sendBeacon(submitURL, new Blob([out], {
+        type: "application/json"
+    }));
 
     // setTimeout(() => {
     //     let req = new XMLHttpRequest();
@@ -132,14 +132,14 @@ async function submitData() { // send the data to the server
     //     req.send(out);
     // }, 0);
 
-    return await fetch(submitURL, {
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        },
-        method: fetchMethod,
-        body: out
-    });
+    // return await fetch(submitURL, {
+    //     headers: {
+    //         'Accept': 'application/json',
+    //         'Content-Type': 'application/json'
+    //     },
+    //     method: fetchMethod,
+    //     body: out
+    // });
 }
 
 // Some util methods
@@ -159,9 +159,7 @@ document.addEventListener("mouseup", mouseDownUpHandler);
 document.addEventListener("keydown", keyOnOffHandler);
 document.addEventListener("keyup", keyOnOffHandler);
 document.querySelectorAll(`input:not([type="submit"]), textarea`).forEach(el => ((el.addEventListener("focus", focusHandler)), (el.addEventListener("blur", focusHandler))));
-window.addEventListener("beforeunload", async () => {
-    await submitData();
-}, 0);
+window.addEventListener("beforeunload", submitData);
 
 // Start the submitter intervals
 submitInterval = setInterval(submitData, submitMillis);

@@ -37,10 +37,21 @@ router.get(["/", "/home"], (req, res) => {
 });
 
 // ====== RECEIVE FORM ======
-router.post("/contact", (req, res) => {
+router.post("/contact", async (req, res) => {
     let name = req.body.name;
     let email = req.body.email;
     let message = req.body.message;
+
+    if (!(await captcha.ensureSession(req))) {
+        res.status(403);
+        if (req.accepts("html")) res.redirect("/");
+        else if (req.accepts("json")) res.json({
+            message: "You must have a session, or have sent session data before you can proceed.",
+            success: false,
+            code: 403,
+        });
+        return;
+    }
 
     let legit = captcha.isLegitimate(req);
 
@@ -60,7 +71,7 @@ router.post("/contact", (req, res) => {
             ...scoreObject
         }).end();
     } else {
-        if(appConfig.testing) captcha.clearScore(req, res);
+        if (appConfig.testing) captcha.clearScore(req, res);
         res.redirect("/");
     }
 });

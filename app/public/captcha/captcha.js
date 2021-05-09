@@ -13,7 +13,9 @@ let config = {
     route: "/captcha",
     debug: false,
     maxEventGap: 1500,
-    method: "post"
+    method: "post",
+    ensureSessionTimeout: 10000,
+    ensureSessionCheckDelay: 20
 };
 
 function handleData(req, res) {
@@ -72,8 +74,20 @@ function getScoreObject(req) {
     };
 }
 
+async function ensureSession(req, timeout, checkDelay) {
+    timeout = timeout || config.ensureSessionTimeout;
+    checkDelay = checkDelay || config.ensureSessionCheckDelay;
+
+    const start = new Date();
+    const wait = () => new Promise((resolve) => setTimeout(resolve, checkDelay));
+    while (getSession(req).similarTo({}) && (new Date() - start) < timeout) await wait().then(() => console.log(getSession(req)));
+
+    return true;
+}
+
 function clearScore(req, res) {
     getSession(req).destroy();
+    getSession(res).destroy();
 }
 
 // Inside a function so we can pass options
@@ -89,5 +103,6 @@ module.exports = function (opts) {
     this.isLegitimate = isLegitimate;
     this.getScoreObject = getScoreObject;
     this.clearScore = clearScore;
+    this.ensureSession = ensureSession;
     return this;
 };
