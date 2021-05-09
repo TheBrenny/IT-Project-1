@@ -119,14 +119,18 @@ function submitData() { // send the data to the server
     dataPoints.keys = [];
     dataPoints.focus = [];
 
-    fetch(submitURL, {
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        },
-        method: fetchMethod,
-        body: out
-    });
+    navigator.sendBeacon(submitURL, new Blob([out], {
+        type: "application/json"
+    }));
+
+    // fetch(submitURL, {
+    //     headers: {
+    //         'Accept': 'application/json',
+    //         'Content-Type': 'application/json'
+    //     },
+    //     method: fetchMethod,
+    //     body: out
+    // });
     // console.log(`fetch("${submitURL}", {\n\tmethod: "${fetchMethod}",\n\tbody: ${out}\n})`);
 }
 
