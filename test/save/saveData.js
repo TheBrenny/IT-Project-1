@@ -20,9 +20,13 @@ async function saveData(data) {
     let vals = JSON.stringify(Object.values(data)).substring(1, -1);
 
     if (config.debug) console.log(`INSERT INTO ${tableName} (${cols}) VALUES (${vals})`);
-
-    let result = await db.query(`INSERT INTO ${tableName} (${cols}) VALUES (${vals})`);
-    return result[0].insertId;
+    try {
+        let result = await db.query(`INSERT INTO ${tableName} (${cols}) VALUES (${vals})`);
+        return result[0].insertId;
+    } catch (err) {
+        console.error(err);
+    }
+    return 0;
 }
 
 module.exports = {
