@@ -12,7 +12,12 @@ module.exports = {
         port: process.env.PORT || 80
     },
     session: {
-        secret: process.env.SECRET || "thisIsSecretHaHa"
+        secret: process.env.SECRET || "thisIsSecretHaHa",
+        save: {
+            doSave: process.env.SAVE_SESSIONS || false,
+            url: process.env.MYSQLURI || null,
+            tableName: process.env.SESSION_TABLE || "sessionData"
+        },
     },
     debug: !!process.env.DEBUG
 };
