@@ -19,7 +19,7 @@ module.exports = {
             tableName: process.env.SESSION_TABLE || "sessionData"
         },
     },
-    debug: !!process.env.DEBUG
+    debug: !!process.env.DEBUG && process.env.DEBUG.toLowerCase() !== "false"
 };
 
 module.exports.helmet = !process.env.GULPING ? {} : {
