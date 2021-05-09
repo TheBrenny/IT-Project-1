@@ -64,6 +64,8 @@ function getScoreObject(req) {
     let session = getSession(req);
 
     return {
+        id: session.sessionID,
+        host: req.hostname,
         score: session.score,
         maxScore: session.maxScore,
         percent: session.score / session.maxScore
