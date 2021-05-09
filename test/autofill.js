@@ -3,9 +3,9 @@ process.argv.splice(0, 2);
 
 const puppeteer = require("puppeteer");
 
-const targetUrl = !!process.env.HOST ? `http://${process.env.HOST}:80/` : "https://it-project-1-dev.herokuapp.com/";
+const targetUrl = process.env.BOT_URL || (!!process.env.HOST ? `http://${process.env.HOST}:80/` : "https://it-project-1-dev.herokuapp.com/");
 const name = "bot";
-const email = "bot@botmail.com";
+const email = "bot@botmail.bot";
 const message = "I am a bot";
 
 const domTargets = [
@@ -34,63 +34,69 @@ async function autofillTarget(opts) {
     await client.send("Network.clearBrowserCache");
     await client.send("Network.clearBrowserCookies");
 
-    let res = (await page.$eval("body > pre", (e) => JSON.parse(e.textContent)));
-
-    await page.close();
+    let res = "";
+    try {
+        res = (await page.$eval("body > pre", (e) => JSON.parse(e.textContent)));
+    } catch (err) {
+        res = "n/a";
+    }
 
     return res;
 }
 
-async function singleInstance(headless) {
+async function singleInstance(iterations, headless) {
     const browser = await puppeteer.launch({
         headless: headless
     });
 
     const page = (await browser.pages())[0];
 
-    return await autofillTarget({
-        page: page,
-        data: {
-            url: targetUrl
-        }
-    }).catch(e => {
-        page.close();
+    let ret = [];
+    let sequentialPromise = Promise.resolve();
+
+    for (let iter = 0; iter < iterations; iter++) {
+
+        sequentialPromise = sequentialPromise
+            .then(async () => [iter, await autofillTarget({ //jshint ignore:line
+                page: page,
+                data: {
+                    url: targetUrl
+                }
+            })])
+            .then(r => ret[r[0]] = r[1]); //jshint ignore:line
+    }
+
+    sequentialPromise = sequentialPromise.catch(e => {
         console.error(e);
     });
+
+
+    await sequentialPromise;
+    await page.close();
+
+    return ret;
 }
 
-async function clusterInstance(clusterSize, headless) {
+async function clusterInstance(clusterSize, iterations, headless) {
     clusterSize = Math.max(1, clusterSize);
     headless = !!headless;
 
     let cluster = Array(clusterSize);
     for (let i = 0; i < clusterSize; i++) {
-        cluster[i] = singleInstance(headless);
+        cluster[i] = singleInstance(iterations, headless);
     }
 
     let retVals = await Promise.all(cluster);
     console.log(retVals);
 
     return retVals;
-    // const cluster = await Cluster.launch({
-    //     concurrency: Cluster.CONCURRENCY_CONTEXT,
-    //     maxConcurrency: clusterSize,
-    //     puppeteerOptions: {
-    //         headers: false
-    //     }
-    // });
-
-    // await cluster.task(autofillTarget);
-    // await cluster.queue(targetUrl);
-
-    // await cluster.idle();
-    // await cluster.close();
 }
 
 
 if (require.main == module) {
     let size = parseInt(process.argv[0]) || 1;
-    clusterInstance(size, !!process.argv[1]);
+    let iters = parseInt(process.argv[1]) || 1;
+    clusterInstance(size, iters, !!process.argv[2]);
 } else {
     module.exports = {
         clusterInstance,
