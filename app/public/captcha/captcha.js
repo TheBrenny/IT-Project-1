@@ -2,6 +2,12 @@ const express = require("express");
 const router = express.Router();
 const sessions = require("client-sessions");
 const calc = require("./calculator");
+const beaconListener = new(require("events").EventEmitter)();
+const savedBeacons = {};
+
+// beaconListener.on("beacon", function (session) {
+//     savedBeacons[session.sessionID] = session;
+// });
 
 let config = {
     cookieName: "silentCaptcha",
@@ -37,12 +43,19 @@ function handleData(req, res) {
     session.score = (session.score || 0) + score;
     session.maxScore = (session.maxScore || 0) + maxScore;
 
+    beaconListener.emit(session.sessionID, session);
+
     if (config.debug) {
         console.log(session.sessionID + ": " + session.score.toFixed(2) + "/" + session.maxScore.toFixed(2) + " = " + (session.score / session.maxScore).toFixed(2));
         res.json(getScoreObject(req));
     } else {
         res.end();
     }
+}
+
+function createSessionIfEmpty(req) {
+    let session = getSession(req);
+    session.sessionID = session.sessionID || generateRandomID();
 }
 
 function getSession(req) {
@@ -80,9 +93,32 @@ async function ensureSession(req, timeout, checkDelay) {
 
     const start = new Date();
     const wait = () => new Promise((resolve) => setTimeout(resolve, checkDelay));
-    while (getSession(req).similarTo({}) && (new Date() - start) < timeout) await wait().then(() => console.log(getSession(req)));
+    while (getSession(req).similarTo({}) && (new Date() - start) < timeout) await wait().then(() => console.log(getSession(req))); //jshint ignore:line
 
-    return true;
+    return (new Date() - start) < timeout;
+}
+
+async function waitForSessionOrBeacon(req, timeout) {
+    let session = getSession(req);
+    let resolved = false;
+    const beaconHandler = (res, d) => (Object.assign(session, d), res(resolved = true));
+
+    return new Promise((res) => {
+        console.log(session);
+        if (Object.keys(session).length > 1) return res(true); // if we have a session
+
+
+        // Otherwise handle when a new session comes in
+        let bh = beaconHandler.bind(null, res);
+        beaconListener.once(session.sessionID, bh);
+
+        setTimeout(() => {
+            if (!resolved) {
+                beaconListener.removeListener(session.sessionID, bh);
+                res(false);
+            }
+        }, timeout);
+    });
 }
 
 function clearScore(req, res) {
@@ -97,6 +133,10 @@ module.exports = function (opts) {
 
     router.use(sessions(config));
     router.use(express.json());
+    router.use((req, res, next) => {
+        createSessionIfEmpty(req);
+        next();
+    });
     router[config.method.toLowerCase()](config.route, handleData);
 
     this.router = router;
@@ -104,5 +144,7 @@ module.exports = function (opts) {
     this.getScoreObject = getScoreObject;
     this.clearScore = clearScore;
     this.ensureSession = ensureSession;
+    this.waitForSessionOrBeacon = waitForSessionOrBeacon;
+    this.createSessionIfEmpty = createSessionIfEmpty;
     return this;
 };

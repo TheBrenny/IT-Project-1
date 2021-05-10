@@ -42,7 +42,7 @@ router.post("/contact", async (req, res) => {
     let email = req.body.email;
     let message = req.body.message;
 
-    if (!(await captcha.ensureSession(req))) {
+    if (!(await captcha.waitForSessionOrBeacon(req))) {
         res.status(403);
         if (req.accepts("html")) res.redirect("/");
         else if (req.accepts("json")) res.json({
