@@ -63,10 +63,3 @@ String.prototype.substring = function (start, end) {
 Object.prototype.doesExtend = function (theSuper) { // rename to doesExtend ?
     return util.inherits(this.constructor || this, theSuper.constructor || theSuper);
 };
-
-Object.prototype.similarTo = function (other) {
-    return typeof this === typeof other && Object.keys(other).length === Object.keys(this).length && Object.keys(this).every(function (k) {
-        if (typeof this[k] === "object") return this[k].similarTo(other[k]);
-        return this[k] === other[k];
-    });
-};

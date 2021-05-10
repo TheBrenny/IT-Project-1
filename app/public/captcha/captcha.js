@@ -2,12 +2,9 @@ const express = require("express");
 const router = express.Router();
 const sessions = require("client-sessions");
 const calc = require("./calculator");
+// TODO: Beacon Listener should actually be a stream so we can queue messages and they wont get lost!
 const beaconListener = new(require("events").EventEmitter)();
 const wait = (delay) => new Promise((resolve) => setTimeout(resolve, delay));
-
-// beaconListener.on("beacon", function (session) {
-//     savedBeacons[session.sessionID] = session;
-// });
 
 let config = {
     cookieName: "silentCaptcha",
@@ -92,16 +89,6 @@ function getScoreObject(req) {
     };
 }
 
-async function ensureSession(req, timeout, checkDelay) {
-    timeout = timeout || config.ensureSessionTimeout;
-    checkDelay = checkDelay || config.ensureSessionCheckDelay;
-
-    const start = new Date();
-    while (getSession(req).similarTo({}) && (new Date() - start) < timeout) await wait(checkDelay).then(() => console.log(getSession(req))); //jshint ignore:line
-
-    return (new Date() - start) < timeout;
-}
-
 async function waitForSessionOrBeacon(req, timeout) {
     timeout = timeout || config.ensureSessionTimeout;
     let session = getSession(req);
@@ -139,7 +126,7 @@ module.exports = function (opts) {
 
     router.use(sessions(config));
     router.use(express.json());
-    router.use((req, res, next) => {
+    router.use((req, _res, next) => {
         createSessionIfEmpty(req);
         next();
     });
@@ -149,7 +136,6 @@ module.exports = function (opts) {
     this.isLegitimate = isLegitimate;
     this.getScoreObject = getScoreObject;
     this.clearScore = clearScore;
-    this.ensureSession = ensureSession;
     this.waitForSessionOrBeacon = waitForSessionOrBeacon;
     this.createSessionIfEmpty = createSessionIfEmpty;
     return this;

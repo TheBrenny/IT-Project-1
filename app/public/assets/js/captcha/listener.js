@@ -111,7 +111,6 @@ function focusHandler(e) {
 }
 
 async function submitData() { // send the data to the server
-    // if (document.visibilityState !== "hidden") return;
 
     let out = JSON.stringify(dataPoints);
     if (out === '{"mouse":[],"mousePress":[],"keys":[],"focus":[]}') return; // catch empty message
@@ -121,25 +120,10 @@ async function submitData() { // send the data to the server
     dataPoints.keys = [];
     dataPoints.focus = [];
 
+    // Using beacons because the browser ensures they send
     navigator.sendBeacon(submitURL, new Blob([out], {
         type: "application/json"
     }));
-
-    // setTimeout(() => {
-    //     let req = new XMLHttpRequest();
-    //     req.open("POST", submitURL, false);
-    //     req.setRequestHeader("Content-Type", "application/json");
-    //     req.send(out);
-    // }, 0);
-
-    // return await fetch(submitURL, {
-    //     headers: {
-    //         'Accept': 'application/json',
-    //         'Content-Type': 'application/json'
-    //     },
-    //     method: fetchMethod,
-    //     body: out
-    // });
 }
 
 // Some util methods
@@ -151,7 +135,6 @@ function getNextID(target) {
     return target.localName + "_" + uniqueNumber++;
 }
 
-
 // set up handlers
 document.addEventListener("mousemove", mouseMoveHandler);
 document.addEventListener("mousedown", mouseDownUpHandler);
@@ -159,7 +142,7 @@ document.addEventListener("mouseup", mouseDownUpHandler);
 document.addEventListener("keydown", keyOnOffHandler);
 document.addEventListener("keyup", keyOnOffHandler);
 document.querySelectorAll(`input:not([type="submit"]), textarea`).forEach(el => ((el.addEventListener("focus", focusHandler)), (el.addEventListener("blur", focusHandler))));
-window.addEventListener("beforeunload", submitData);
+window.addEventListener("beforeunload", submitData); // TODO: This should be visibilitychanged
 
 // Start the submitter intervals
 submitInterval = setInterval(submitData, submitMillis);

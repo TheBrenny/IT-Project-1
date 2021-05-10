@@ -60,8 +60,6 @@ router.post("/contact", async (req, res) => {
     }
 
     let scoreObject = captcha.getScoreObject(req);
-    console.log("qwertyuiopqwertyuiopqwertyuiopqwertyuiop");
-    console.log(scoreObject);
     if (appConfig.session.save.doSave && !!saveData) {
         saveData(Object.assign(scoreObject, {
             isBot: email === "bot@botmail.bot" // TODO: MAKE SURE THIS IS THE RIGHT BOTMAIL ADDRESS TO LISTEN FOR!
