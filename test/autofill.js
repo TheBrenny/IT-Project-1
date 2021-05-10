@@ -19,6 +19,8 @@ async function autofillTarget(opts) {
     let page = opts.page;
     let url = opts.data.url;
 
+    page.on('requestfailed', request => console.log(request));
+
     await page.goto(url);
     await page.type(domTargets[0], name);
     await page.type(domTargets[1], email);
@@ -55,7 +57,6 @@ async function singleInstance(iterations, headless) {
     let sequentialPromise = Promise.resolve();
 
     for (let iter = 0; iter < iterations; iter++) {
-
         sequentialPromise = sequentialPromise
             .then(async () => [iter, await autofillTarget({ //jshint ignore:line
                 page: page,
@@ -69,7 +70,6 @@ async function singleInstance(iterations, headless) {
     sequentialPromise = sequentialPromise.catch(e => {
         console.error(e);
     });
-
 
     await sequentialPromise;
     await page.close();
