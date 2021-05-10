@@ -3,7 +3,7 @@ const router = express.Router();
 const sessions = require("client-sessions");
 const calc = require("./calculator");
 const beaconListener = new(require("events").EventEmitter)();
-const savedBeacons = {};
+const wait = (delay) => new Promise((resolve) => setTimeout(resolve, delay));
 
 // beaconListener.on("beacon", function (session) {
 //     savedBeacons[session.sessionID] = session;
@@ -43,14 +43,19 @@ function handleData(req, res) {
     session.score = (session.score || 0) + score;
     session.maxScore = (session.maxScore || 0) + maxScore;
 
-    beaconListener.emit(session.sessionID, session);
-
     if (config.debug) {
         console.log(session.sessionID + ": " + session.score.toFixed(2) + "/" + session.maxScore.toFixed(2) + " = " + (session.score / session.maxScore).toFixed(2));
         res.json(getScoreObject(req));
     } else {
         res.end();
     }
+
+    Promise.resolve().then(async () => {
+        let emission = () => beaconListener.emit(session.sessionID, session);
+        let emissionCount = 0;
+
+        while (!emission() && emissionCount < 100) await wait(10);
+    });
 }
 
 function createSessionIfEmpty(req) {
@@ -92,24 +97,25 @@ async function ensureSession(req, timeout, checkDelay) {
     checkDelay = checkDelay || config.ensureSessionCheckDelay;
 
     const start = new Date();
-    const wait = () => new Promise((resolve) => setTimeout(resolve, checkDelay));
-    while (getSession(req).similarTo({}) && (new Date() - start) < timeout) await wait().then(() => console.log(getSession(req))); //jshint ignore:line
+    while (getSession(req).similarTo({}) && (new Date() - start) < timeout) await wait(checkDelay).then(() => console.log(getSession(req))); //jshint ignore:line
 
     return (new Date() - start) < timeout;
 }
 
 async function waitForSessionOrBeacon(req, timeout) {
+    timeout = timeout || config.ensureSessionTimeout;
     let session = getSession(req);
     let resolved = false;
-    const beaconHandler = (res, d) => (Object.assign(session, d), res(resolved = true));
 
     return new Promise((res) => {
-        console.log(session);
         if (Object.keys(session).length > 1) return res(true); // if we have a session
 
-
         // Otherwise handle when a new session comes in
-        let bh = beaconHandler.bind(null, res);
+        const bh = (d) => {
+            Object.assign(session, d);
+            resolved = true;
+            res(true);
+        };
         beaconListener.once(session.sessionID, bh);
 
         setTimeout(() => {

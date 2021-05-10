@@ -43,9 +43,7 @@ router.post("/contact", async (req, res) => {
     let message = req.body.message;
 
     if (!(await captcha.waitForSessionOrBeacon(req))) {
-        res.status(403);
-        if (req.accepts("html")) res.redirect("/");
-        else if (req.accepts("json")) res.json({
+        res.status(403).json({
             message: "You must have a session, or have sent session data before you can proceed.",
             success: false,
             code: 403,
@@ -62,9 +60,13 @@ router.post("/contact", async (req, res) => {
     }
 
     let scoreObject = captcha.getScoreObject(req);
-    if (appConfig.session.save.doSave && !!saveData) saveData(Object.assign(scoreObject, {
-        isBot: email === "bot@botmail.bot" // TODO: MAKE SURE THIS IS THE RIGHT BOTMAIL ADDRESS TO LISTEN FOR!
-    }));
+    console.log("qwertyuiopqwertyuiopqwertyuiopqwertyuiop");
+    console.log(scoreObject);
+    if (appConfig.session.save.doSave && !!saveData) {
+        saveData(Object.assign(scoreObject, {
+            isBot: email === "bot@botmail.bot" // TODO: MAKE SURE THIS IS THE RIGHT BOTMAIL ADDRESS TO LISTEN FOR!
+        }));
+    }
     if (appConfig.debug) {
         res.json({
             isBot: !legit,
