@@ -23,6 +23,9 @@ app.use(morgan('common', config.morgan));
 app.use(helmet(config.helmet));
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({
+    extended: true
+}));
 
 let public = path.join(__dirname, "app", "public");
 
