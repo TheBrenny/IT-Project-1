@@ -22,6 +22,7 @@ async function autofillTarget(opts) {
     page.on('requestfailed', request => console.log(request));
 
     await page.goto(url);
+    await Promise.all(domTargets.map(t => page.waitForSelector(t)));
     await page.type(domTargets[0], name);
     await page.type(domTargets[1], email);
     await page.type(domTargets[2], message);
@@ -52,7 +53,6 @@ async function singleInstance(iterations, headless) {
     });
 
     const page = (await browser.pages())[0];
-
     let ret = [];
     let sequentialPromise = Promise.resolve();
 
