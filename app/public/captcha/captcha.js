@@ -12,7 +12,7 @@ let config = {
     duration: 3600000, // sets the expiry date
     activeDuration: 300000, // extends the expiry date if required
     keyLength: 20,
-    threshold: 0.5,
+    threshold: 0.3,
     route: "/captcha",
     debug: false,
     maxEventGap: 1500,
@@ -69,8 +69,14 @@ function isLegitimate(req) {
     let session = getSession(req);
     let score = session.score;
     let maxScore = session.maxScore;
+    let percent = score / maxScore;
 
-    return score / maxScore < config.threshold;
+    // During testing, it was found that humans scored higher than bots
+    // (probably due to bots not creating a lot of data points). Therefore,
+    // a user is legitimate if their score is HIGHER than the threshold.
+    // Alternatively, if the threshold is a function, then pass the percent,
+    // and session to the threshold for a determination to be made.
+    return typeof config.threshold === 'function' ? config.threshold(percent, session) : percent > config.threshold;
 }
 
 function generateRandomID() {
