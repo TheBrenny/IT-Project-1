@@ -6,7 +6,7 @@
 const submitURL = document.location.origin + "/captcha";
 const mousePointCount = 200;
 const submitMillis = 10000; // 10 seconds
-const fetchMethod = "PUT";
+const fetchMethod = "POST";
 let verbose = false;
 
 
@@ -110,20 +110,21 @@ function focusHandler(e) {
     dataPoints.focus.push();
 }
 
-function submitData() { // send the data to the server
+async function submitData() { // send the data to the server
+
     let out = JSON.stringify(dataPoints);
+    if (out === '{"mouse":[],"mousePress":[],"keys":[],"focus":[]}') return; // catch empty message
+
     dataPoints.mouse = [];
     dataPoints.mousePress = [];
     dataPoints.keys = [];
     dataPoints.focus = [];
 
-    // fetch(submitURL, {
-    //     method: fetchMethod,
-    //     body: out
-    // });
-    console.log(`fetch("${submitURL}", {\n\tmethod: "${fetchMethod}",\n\tbody: ${out}\n})`);
+    // Using beacons because the browser ensures they send
+    navigator.sendBeacon(submitURL, new Blob([out], {
+        type: "application/json"
+    }));
 }
-
 
 // Some util methods
 function getUidOfTarget(target) {
@@ -134,14 +135,14 @@ function getNextID(target) {
     return target.localName + "_" + uniqueNumber++;
 }
 
-
 // set up handlers
-document.onmousemove = mouseMoveHandler;
-document.onmousedown = mouseDownUpHandler;
-document.onmouseup = mouseDownUpHandler;
-document.onkeydown = keyOnOffHandler;
-document.onkeyup = keyOnOffHandler;
-document.querySelectorAll(`input:not([type="submit"]), textarea`).forEach(el => ((el.onfocus = focusHandler), (el.onblur = focusHandler)));
+document.addEventListener("mousemove", mouseMoveHandler);
+document.addEventListener("mousedown", mouseDownUpHandler);
+document.addEventListener("mouseup", mouseDownUpHandler);
+document.addEventListener("keydown", keyOnOffHandler);
+document.addEventListener("keyup", keyOnOffHandler);
+document.querySelectorAll(`input:not([type="submit"]), textarea`).forEach(el => ((el.addEventListener("focus", focusHandler)), (el.addEventListener("blur", focusHandler))));
+window.addEventListener("beforeunload", submitData); // TODO: This should be visibilitychanged
 
 // Start the submitter intervals
 submitInterval = setInterval(submitData, submitMillis);

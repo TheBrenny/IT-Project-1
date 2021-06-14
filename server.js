@@ -23,6 +23,9 @@ app.use(morgan('common', config.morgan));
 app.use(helmet(config.helmet));
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({
+    extended: true
+}));
 
 let public = path.join(__dirname, "app", "public");
 
@@ -37,6 +40,6 @@ app.use(require('./app/errorRouter'));
 app.use(require('./app/errorRouter').handler);
 
 app.listen(serverInfo.port, serverInfo.host, () => {
-    if (process.env.NODE_ENV === 'dev' && process.env.GUPLING == 'true') serverInfo.port = 81;
+    if ((process.env.NODE_ENV === 'dev' && process.env.GUPLING == 'true') || config.debug) serverInfo.port = 81;
     console.log(`Server is listening at http://${serverInfo.host}:${serverInfo.port}...`);
 });
